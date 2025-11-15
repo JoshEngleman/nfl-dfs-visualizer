@@ -1,0 +1,9 @@
+{
+  "mappings": {
+    "Kyle Pitts Sr.|ATL": "Kyle Pitts",
+    "Aaron Jones Sr.|MIN": "Aaron Jones",
+    "James Cook III|BUF": "James Cook",
+    "Ray-Ray McCloud III|NYG": "Ray-Ray McCloud"
+  },
+  "notes": "This file stores manual player name mappings from CSV to NFL roster data"
+}
