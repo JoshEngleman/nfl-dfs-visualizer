@@ -1903,7 +1903,10 @@
 
             // Prepare chart data with colors based on quadrant
             const chartData = filteredPlayers.map(p => {
-                const sizeNormalized = (p[sizeStat] - minSize) / (maxSize - minSize);
+                // Handle single player case (avoid division by zero)
+                const sizeNormalized = minSize === maxSize
+                    ? 0.5  // Default to middle size when only one player
+                    : (p[sizeStat] - minSize) / (maxSize - minSize);
 
                 // Determine Y-axis midpoint (0 for leverage, median for others)
                 const yMidpoint = yAxisStat === 'leverage' ? 0 : xMedian;
