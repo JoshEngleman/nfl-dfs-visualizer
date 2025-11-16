@@ -2437,14 +2437,28 @@
             return pos;
         }
 
+        // Helper function to parse salary (handles comma-separated values)
+        function parseSalary(salaryStr) {
+            if (!salaryStr) return 0;
+            // Remove commas, dollar signs, and any whitespace
+            const cleaned = String(salaryStr).replace(/[$,\s]/g, '');
+            return parseFloat(cleaned) || 0;
+        }
+
         // Map CSV columns to internal format
         function mapCSVRow(row) {
+            const salaryValue = parseSalary(row['Salary'] || row['salary'] || 0);
+
+            // If salary looks like it's already in full dollars (>1000), use as-is
+            // Otherwise assume it's in thousands and multiply by 1000
+            const salary = salaryValue > 1000 ? salaryValue : salaryValue * 1000;
+
             return {
                 player_name: row['Name'] || row['name'] || row['player_name'] || '',
                 player_id: (row['Name'] || row['player_name'] || 'Unknown').replace(/\s+/g, '_') + '_' + Math.random().toString(36).substr(2, 9),
                 position: normalizePosition(row['Position'] || row['position'] || row['Pos'] || row['pos'] || ''),
                 team_abbr: row['Team'] || row['team'] || row['team_abbr'] || '',
-                salary: parseFloat(row['Salary'] || row['salary'] || 0) * 1000,
+                salary: salary,
                 dk_projection: parseFloat(row['Projection'] || row['projection'] || row['dk_projection'] || 0),
                 std_dev: parseFloat(row['Std Dev'] || row['std_dev'] || row['StdDev'] || 0),
                 ceiling: parseFloat(row['Ceiling'] || row['ceiling'] || 0),
