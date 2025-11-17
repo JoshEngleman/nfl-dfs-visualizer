@@ -8,15 +8,16 @@ import os
 from pathlib import Path
 from PIL import Image
 
-def compress_headshots(input_dir, output_dir, max_size=400, quality=85):
+def compress_headshots(input_dir, output_dir, max_size=400, quality=85, use_webp=True):
     """
-    Compress headshot images for web use.
+    Compress headshot images for web use with WebP support.
 
     Args:
         input_dir: Directory containing original headshots
         output_dir: Directory to save compressed headshots
         max_size: Maximum width/height in pixels (default 400)
-        quality: JPEG quality 1-100 (default 85, higher = better quality)
+        quality: JPEG/WebP quality 1-100 (default 85, higher = better quality)
+        use_webp: Use WebP format for better compression (default True)
     """
 
     input_path = Path(input_dir)
@@ -31,7 +32,7 @@ def compress_headshots(input_dir, output_dir, max_size=400, quality=85):
         return
 
     print(f"Found {len(png_files)} images to compress")
-    print(f"Settings: max_size={max_size}px, quality={quality}")
+    print(f"Settings: max_size={max_size}px, quality={quality}, format={'WebP' if use_webp else 'JPEG/PNG'}")
     print(f"Output: {output_path.absolute()}\n")
 
     total_original_size = 0
@@ -61,20 +62,44 @@ def compress_headshots(input_dir, output_dir, max_size=400, quality=85):
             if img.width > max_size or img.height > max_size:
                 img.thumbnail((max_size, max_size), Image.Resampling.LANCZOS)
 
-            # Save as optimized PNG or JPEG
-            output_file = output_path / img_file.name
-
-            # Try PNG first with optimization
-            img.save(output_file, 'PNG', optimize=True)
-
-            # If still too large, convert to JPEG
-            compressed_size = output_file.stat().st_size
-            if compressed_size > 200_000:  # If larger than 200KB
-                # Save as JPEG instead
+            # Choose output format
+            if use_webp:
+                # Save as WebP (25-35% smaller than JPEG)
                 output_file = output_path / img_file.stem
-                output_file = output_file.with_suffix('.png')  # Keep .png extension for compatibility
-                img.save(output_file, 'JPEG', quality=quality, optimize=True)
+                output_file = output_file.with_suffix('.webp')
+                img.save(output_file, 'WEBP', quality=quality, method=6)
+
                 compressed_size = output_file.stat().st_size
+
+                # Fallback to JPEG if WebP fails or is larger (rare)
+                if compressed_size > 150_000:
+                    jpeg_file = output_path / img_file.stem
+                    jpeg_file = jpeg_file.with_suffix('.jpg')
+                    img.save(jpeg_file, 'JPEG', quality=quality, optimize=True)
+
+                    # Use whichever is smaller
+                    jpeg_size = jpeg_file.stat().st_size
+                    if jpeg_size < compressed_size:
+                        output_file.unlink()
+                        output_file = jpeg_file
+                        compressed_size = jpeg_size
+                    else:
+                        jpeg_file.unlink()
+            else:
+                # Original PNG/JPEG logic
+                output_file = output_path / img_file.name
+
+                # Try PNG first with optimization
+                img.save(output_file, 'PNG', optimize=True)
+
+                # If still too large, convert to JPEG
+                compressed_size = output_file.stat().st_size
+                if compressed_size > 200_000:  # If larger than 200KB
+                    # Save as JPEG instead
+                    output_file = output_path / img_file.stem
+                    output_file = output_file.with_suffix('.png')  # Keep .png extension for compatibility
+                    img.save(output_file, 'JPEG', quality=quality, optimize=True)
+                    compressed_size = output_file.stat().st_size
 
             total_compressed_size += compressed_size
 
@@ -103,8 +128,9 @@ if __name__ == '__main__':
     # Configuration
     input_dir = 'headshot_cache'
     output_dir = 'headshot_cache_compressed'
-    max_size = 400  # 400x400 pixels max
-    quality = 85    # JPEG quality (85 is good balance)
+    max_size = 400     # 400x400 pixels max
+    quality = 85       # Image quality (85 is good balance)
+    use_webp = True    # Use WebP format for better compression
 
     print("=" * 60)
     print("Headshot Image Compression Tool")
@@ -118,6 +144,6 @@ if __name__ == '__main__':
         exit(1)
 
     # Run compression
-    compress_headshots(input_dir, output_dir, max_size, quality)
+    compress_headshots(input_dir, output_dir, max_size, quality, use_webp)
 
     print("\nNext step: Upload compressed images to GoDaddy at /nfl-dfs/headshots/")
