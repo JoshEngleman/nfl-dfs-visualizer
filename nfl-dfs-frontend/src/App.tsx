@@ -161,12 +161,13 @@ function App() {
             <div className="filters-container">
               {/* Group 1: Position & Player Filters */}
               <div className="filter-group">
-                <PositionFilter
-                  selectedPositions={selectedPositions}
-                  onTogglePosition={togglePosition}
-                />
-
+                <div className="filter-group-header">Positions</div>
                 <div className="filter-group-content">
+                  <PositionFilter
+                    selectedPositions={selectedPositions}
+                    onTogglePosition={togglePosition}
+                  />
+
                   <RangeFilter
                     label="Salary Range"
                     min={3000}
