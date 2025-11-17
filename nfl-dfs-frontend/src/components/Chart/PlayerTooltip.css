@@ -1,0 +1,123 @@
+/* Player Card Tooltip Styles */
+.player-card-tooltip {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    padding: 0;
+    max-width: 280px;
+    font-family: 'Outfit', sans-serif;
+    overflow: hidden;
+}
+
+.player-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.player-card-headshot {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #e5e7eb;
+    flex-shrink: 0;
+}
+
+.player-card-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.player-card-name {
+    font-weight: 700;
+    font-size: 14px;
+    color: #0f172a;
+    margin: 0 0 4px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.player-card-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: #64748b;
+}
+
+.player-card-position-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 11px;
+    color: white;
+}
+
+.player-card-position-badge.QB { background-color: #dc2626; }
+.player-card-position-badge.RB { background-color: #059669; }
+.player-card-position-badge.WR { background-color: #3b82f6; }
+.player-card-position-badge.TE { background-color: #d97706; }
+.player-card-position-badge.DST { background-color: #6b7280; }
+
+.player-card-section {
+    padding: 10px 12px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.player-card-section:last-child {
+    border-bottom: none;
+}
+
+.player-card-section-title {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #94a3b8;
+    margin: 0 0 6px 0;
+}
+
+.player-card-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.player-card-stat {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    font-size: 12px;
+}
+
+.player-card-stat-label {
+    color: #64748b;
+    font-weight: 500;
+}
+
+.player-card-stat-value {
+    color: #0f172a;
+    font-weight: 700;
+}
+
+.player-card-stat-primary {
+    font-size: 14px;
+}
+
+.player-card-stat-primary .player-card-stat-value {
+    color: #3b82f6;
+    font-size: 16px;
+}
+
+.player-card-leverage-positive {
+    color: #059669;
+}
+
+.player-card-leverage-negative {
+    color: #dc2626;
+}
