@@ -1,8 +1,9 @@
 # Phase 2: Modern Build Pipeline - Progress Report
 
-**Status:** In Progress (40% Complete)
+**Status:** In Progress (55% Complete)
 **Started:** November 17, 2025
 **Branch:** `phase-2-modern-build`
+**Last Updated:** November 17, 2025 - Evening Session
 
 ---
 
@@ -114,6 +115,28 @@ Comprehensive TypeScript interfaces for:
 - Loading states
 - Error handling
 
+**`src/components/Chart/ChartView.tsx`:** ✅
+- Main scatter chart with Recharts
+- Axis configuration (X, Y, bubble size)
+- Zoom functionality (drag to zoom, reset)
+- Quadrant coloring
+- Median lines and reference areas
+- Chart info display
+
+**`src/components/Chart/PlayerHeadshot.tsx`:** ✅
+- Custom scatter plot shape component
+- Player image with team logo watermark
+- Smart label positioning for top performers
+- Circular clipping with colored borders
+- Size based on data value
+
+**`src/components/Chart/PlayerTooltip.tsx`:** ✅
+- Interactive player card tooltip
+- Player headshot with fallback
+- Projections section (proj, pts/$)
+- Performance section (boom%)
+- Ownership & value section (own%, leverage)
+
 ---
 
 ### 🚧 In Progress / Remaining Tasks
@@ -167,7 +190,8 @@ Need to extract from `public/index.html`:
 ## Git Commits
 
 ```
-* 1c26554 (HEAD -> phase-2-modern-build) Add utility functions and custom hooks
+* 7703753 (HEAD -> phase-2-modern-build) Add Chart components (ChartView, PlayerHeadshot, PlayerTooltip)
+* 1c26554 Add utility functions and custom hooks
 * 19d4504 Update documentation with Phase 2 progress
 * 53bc188 Add TypeScript type definitions for NFL DFS data
 * 2e2617e Initialize Vite + React + TypeScript project
