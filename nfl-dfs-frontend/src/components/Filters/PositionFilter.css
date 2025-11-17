@@ -4,9 +4,6 @@
     gap: 8px;
     flex-wrap: wrap;
     padding: 4px 0;
-    flex: 1;
-    min-width: 300px;
-    align-items: center;
 }
 
 .position-toggle {
