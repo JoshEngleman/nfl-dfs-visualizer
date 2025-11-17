@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Player, TableColumn, TableSort, ColumnFilters, ColumnVisibility } from '../../types/player';
 import { getTeamColor, getTeamLogoUrl } from '../../utils/teamColors';
+import './DataTable.css';
 
 interface DataTableProps {
   players: Player[];

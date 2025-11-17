@@ -1,0 +1,52 @@
+/* Team Logo Toggles */
+.team-logos-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 8px 0;
+    width: 100%;
+}
+
+.team-logos-row {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: nowrap;
+    align-items: center;
+    width: 100%;
+}
+
+.team-logo-toggle {
+    width: 70px;
+    height: 70px;
+    flex-shrink: 0;
+    object-fit: contain;
+    cursor: pointer;
+    transition: opacity 0.2s ease, transform 0.1s ease;
+    border-radius: 4px;
+    padding: 4px;
+}
+
+.team-logo-toggle.active {
+    opacity: 1;
+}
+
+.team-logo-toggle.inactive {
+    opacity: 0.3;
+}
+
+.team-logo-toggle:hover {
+    transform: scale(1.15);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .team-logos-row {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .team-logo-toggle {
+        width: 45px;
+        height: 45px;
+    }
+}

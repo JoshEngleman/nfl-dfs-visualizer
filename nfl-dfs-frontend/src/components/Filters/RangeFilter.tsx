@@ -1,4 +1,6 @@
 import React from 'react';
+import './RangeFilter.css';
+import './Filters.css';
 
 interface RangeFilterProps {
   label: string;

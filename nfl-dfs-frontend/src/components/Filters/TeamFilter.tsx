@@ -1,5 +1,7 @@
 import React from 'react';
 import { getTeamLogoUrl } from '../../utils/teamColors';
+import './TeamFilter.css';
+import './Filters.css';
 
 interface TeamFilterProps {
   allTeams: string[];

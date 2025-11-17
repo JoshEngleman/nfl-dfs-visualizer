@@ -1,0 +1,100 @@
+/* Position Badge Toggles */
+.position-badges-container {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding: 4px 0;
+}
+
+.position-toggle {
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: opacity 0.2s ease, transform 0.1s ease;
+    user-select: none;
+    min-width: 50px;
+    text-align: center;
+    border: 2px solid transparent;
+}
+
+.position-toggle.active {
+    opacity: 1;
+}
+
+.position-toggle.inactive {
+    opacity: 0.3;
+}
+
+.position-toggle:hover {
+    transform: translateY(-2px);
+}
+
+.position-toggle.position-QB {
+    background: #dc2626;
+    color: white;
+}
+
+.position-toggle.position-RB {
+    background: #059669;
+    color: white;
+}
+
+.position-toggle.position-WR {
+    background: #3b82f6;
+    color: white;
+}
+
+.position-toggle.position-TE {
+    background: #d97706;
+    color: white;
+}
+
+.position-toggle.position-DST {
+    background: #6b7280;
+    color: white;
+}
+
+.position-toggle.position-ALL {
+    background: #8b5cf6;
+    color: white;
+}
+
+/* Position badges for table and tooltips */
+.position-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    text-align: center;
+    min-width: 40px;
+}
+
+.position-QB {
+    background: #dc2626;
+    color: white;
+}
+
+.position-RB {
+    background: #059669;
+    color: white;
+}
+
+.position-WR {
+    background: #3b82f6;
+    color: white;
+}
+
+.position-TE {
+    background: #d97706;
+    color: white;
+}
+
+.position-DST {
+    background: #6b7280;
+    color: white;
+}

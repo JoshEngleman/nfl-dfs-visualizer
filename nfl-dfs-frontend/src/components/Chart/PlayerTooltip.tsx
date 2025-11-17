@@ -1,4 +1,5 @@
 import type { ChartData } from '../../types/player';
+import './PlayerTooltip.css';
 
 interface PlayerTooltipProps {
   active?: boolean;

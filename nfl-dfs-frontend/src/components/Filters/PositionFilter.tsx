@@ -1,5 +1,7 @@
 import React from 'react';
 import { Position, POSITIONS } from '../../types/player';
+import './PositionFilter.css';
+import './Filters.css';
 
 interface PositionFilterProps {
   selectedPositions: Position[];

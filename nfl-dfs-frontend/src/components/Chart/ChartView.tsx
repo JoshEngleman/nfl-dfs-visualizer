@@ -14,6 +14,7 @@ import type { Player, ChartData } from '../../types/player';
 import { getTeamColor } from '../../utils/teamColors';
 import PlayerTooltip from './PlayerTooltip';
 import PlayerHeadshot from './PlayerHeadshot';
+import './ChartView.css';
 
 interface ChartViewProps {
   players: Player[];

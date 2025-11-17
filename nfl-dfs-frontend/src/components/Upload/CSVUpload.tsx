@@ -6,6 +6,7 @@
 import React, { useRef } from 'react';
 import { useCSVParser } from '../../hooks/useCSVParser';
 import { StoredData } from '../../types/player';
+import './CSVUpload.css';
 
 interface CSVUploadProps {
   onDataLoaded: (data: StoredData) => void;
