@@ -4,7 +4,7 @@
 
 import { useState } from 'react';
 import Papa from 'papaparse';
-import { Player, CSVParseResult, StoredData } from '../types/player';
+import type { Player, CSVParseResult, StoredData } from '../types/player';
 import { getHeadshotUrl } from '../utils/playerUtils';
 
 export const useCSVParser = () => {
@@ -22,18 +22,25 @@ export const useCSVParser = () => {
         complete: (results) => {
           try {
             const players: Player[] = results.data.map((row: any) => {
+              const projection = parseFloat(row['DK Projection'] || row.dk_projection || row.projection || '0');
+              const ownership = parseFloat(row['Ownership%'] || row.ownership_pct || row.proj_ownership || '0');
+              const salary = parseFloat(row.Salary || row.salary || '0');
+
               const player: Player = {
                 player_name: row.Name || row.player_name || '',
                 player_id: row['Name + ID'] || row.player_id || `${row.Name}_${Date.now()}`,
                 position: row.Position || row.position || 'ALL',
                 team_abbr: row.TeamAbbrev || row.team_abbr || '',
-                salary: parseFloat(row.Salary || row.salary || '0'),
-                dk_projection: parseFloat(row['DK Projection'] || row.dk_projection || '0'),
+                salary: salary,
+                dk_projection: projection,
+                projection: projection,
+                proj_ownership: ownership,
+                pts_per_dollar: salary > 0 ? projection / (salary / 1000) : 0,
                 std_dev: parseFloat(row['Std Dev'] || row.std_dev || '0'),
                 ceiling: parseFloat(row.Ceiling || row.ceiling || '0'),
                 bust_pct: parseFloat(row['Bust%'] || row.bust_pct || '0'),
                 boom_pct: parseFloat(row['Boom%'] || row.boom_pct || '0'),
-                ownership_pct: parseFloat(row['Ownership%'] || row.ownership_pct || '0'),
+                ownership_pct: ownership,
                 optimal_pct: parseFloat(row['Optimal%'] || row.optimal_pct || '0'),
                 leverage: parseFloat(row.Leverage || row.leverage || '0'),
                 headshot_url: ''

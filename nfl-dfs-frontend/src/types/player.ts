@@ -11,6 +11,9 @@ export interface Player {
   team_abbr: string;
   salary: number;
   dk_projection: number;
+  projection: number;
+  proj_ownership: number;
+  pts_per_dollar: number;
   std_dev: number;
   ceiling: number;
   bust_pct: number;
@@ -39,6 +42,9 @@ export type NFLTeam = typeof NFL_TEAMS[number];
 
 // Chart data type (for scatter plot)
 export interface ChartData {
+  x: number;
+  y: number;
+  z: number;
   leverage: number;
   boom_pct: number;
   ownership_pct: number;
@@ -47,6 +53,9 @@ export interface ChartData {
   team_abbr: string;
   salary: number;
   dk_projection: number;
+  projection: number;
+  proj_ownership: number;
+  pts_per_dollar: number;
   std_dev: number;
   ceiling: number;
   bust_pct: number;
@@ -69,10 +78,14 @@ export interface TableColumn {
   key: keyof Player;
   label: string;
   sortable: boolean;
+  locked?: boolean;
+  type?: string;
+  format?: (val: number) => string;
 }
 
 // Table sort state
 export interface TableSort {
+  key?: string;
   column: keyof Player | null;
   direction: 'asc' | 'desc';
 }
@@ -96,12 +109,17 @@ export interface ColumnFilters {
   searchTerm: string;
   selectedTeams: string[];
   selectedPositions: Position[];
+  position?: Position[];
+  team_abbr?: string[];
   salaryMin: number;
   salaryMax: number;
   ownershipMin: number;
   ownershipMax: number;
   leverageMin: number;
   leverageMax: number;
+  min?: number;
+  max?: number;
+  [key: string]: any;
 }
 
 // CSV parser result

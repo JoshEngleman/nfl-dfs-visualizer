@@ -3,9 +3,9 @@
  * Allows users to upload and parse DraftKings CSV files
  */
 
-import React, { useRef } from 'react';
+import { useRef } from 'react';
 import { useCSVParser } from '../../hooks/useCSVParser';
-import { StoredData } from '../../types/player';
+import type { StoredData } from '../../types/player';
 import './CSVUpload.css';
 
 interface CSVUploadProps {

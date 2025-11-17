@@ -2,7 +2,7 @@
  * Player utility functions including name mappings and headshot fetching
  */
 
-import { Player } from '../types/player';
+import type { Player } from '../types/player';
 
 // Name mappings for players with suffixes (Sr., Jr., III, etc.)
 export const NAME_MAPPINGS: { [key: string]: string } = {

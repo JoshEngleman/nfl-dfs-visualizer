@@ -1,5 +1,5 @@
-import React from 'react';
-import { Position, POSITIONS } from '../../types/player';
+import type { Position } from '../../types/player';
+import { POSITIONS } from '../../types/player';
 import './PositionFilter.css';
 import './Filters.css';
 
@@ -8,10 +8,10 @@ interface PositionFilterProps {
   onTogglePosition: (position: Position) => void;
 }
 
-const PositionFilter: React.FC<PositionFilterProps> = ({
+const PositionFilter = ({
   selectedPositions,
   onTogglePosition
-}) => {
+}: PositionFilterProps) => {
   return (
     <div className="filter-group">
       <div className="filter-group-header">Positions</div>

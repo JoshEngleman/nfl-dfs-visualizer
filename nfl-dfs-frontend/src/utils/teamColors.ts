@@ -2,7 +2,7 @@
  * Team colors and logo utilities for NFL teams
  */
 
-import { TeamColors } from '../types/player';
+import type { TeamColors } from '../types/player';
 
 export const TEAM_COLORS: TeamColors = {
   'ARI': '#97233F',

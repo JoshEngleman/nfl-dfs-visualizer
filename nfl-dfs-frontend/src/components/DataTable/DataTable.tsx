@@ -1,5 +1,5 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { Player, TableColumn, TableSort, ColumnFilters, ColumnVisibility } from '../../types/player';
+import { useState, useMemo, useEffect } from 'react';
+import type { Player, TableColumn, TableSort, ColumnFilters, ColumnVisibility } from '../../types/player';
 import { getTeamColor, getTeamLogoUrl } from '../../utils/teamColors';
 import './DataTable.css';
 
@@ -7,10 +7,10 @@ interface DataTableProps {
   players: Player[];
 }
 
-const DataTable: React.FC<DataTableProps> = ({ players }) => {
+const DataTable = ({ players }: DataTableProps) => {
   // Table state
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortConfig, setSortConfig] = useState<TableSort>({ key: null, direction: 'asc' });
+  const [sortConfig, setSortConfig] = useState<TableSort>({ key: undefined, column: null, direction: 'asc' });
   const [currentPage, setCurrentPage] = useState(1);
   const [showColumnMenu, setShowColumnMenu] = useState(false);
   const [activeFilterColumn, setActiveFilterColumn] = useState<string | null>(null);
@@ -32,8 +32,17 @@ const DataTable: React.FC<DataTableProps> = ({ players }) => {
 
   // Column filters
   const [columnFilters, setColumnFilters] = useState<ColumnFilters>({
+    searchTerm: '',
+    selectedTeams: [],
+    selectedPositions: [],
     position: [],
     team_abbr: [],
+    salaryMin: 0,
+    salaryMax: 100000,
+    ownershipMin: 0,
+    ownershipMax: 100,
+    leverageMin: -100,
+    leverageMax: 100,
     salary: { min: '', max: '' },
     dk_projection: { min: '', max: '' },
     std_dev: { min: '', max: '' },
@@ -49,18 +58,18 @@ const DataTable: React.FC<DataTableProps> = ({ players }) => {
 
   // Column definitions
   const columns: TableColumn[] = [
-    { key: 'player_name', label: 'Player', locked: true, type: 'text' },
-    { key: 'team_abbr', label: 'Team', type: 'checkbox' },
-    { key: 'position', label: 'Pos', type: 'checkbox' },
-    { key: 'salary', label: 'Salary', format: (val: number) => `$${val.toLocaleString()}`, type: 'range' },
-    { key: 'dk_projection', label: 'Proj', format: (val: number) => val.toFixed(1), type: 'range' },
-    { key: 'std_dev', label: 'Std Dev', format: (val: number) => val.toFixed(1), type: 'range' },
-    { key: 'ceiling', label: 'Ceiling', format: (val: number) => val.toFixed(1), type: 'range' },
-    { key: 'boom_pct', label: 'Boom%', format: (val: number) => `${val.toFixed(1)}%`, type: 'range' },
-    { key: 'bust_pct', label: 'Bust%', format: (val: number) => `${val.toFixed(1)}%`, type: 'range' },
-    { key: 'ownership_pct', label: 'Own%', format: (val: number) => `${val.toFixed(1)}%`, type: 'range' },
-    { key: 'optimal_pct', label: 'Opt%', format: (val: number) => `${val.toFixed(1)}%`, type: 'range' },
-    { key: 'leverage', label: 'Lev', format: (val: number) => val.toFixed(1), type: 'range' }
+    { key: 'player_name', label: 'Player', sortable: true, locked: true, type: 'text' },
+    { key: 'team_abbr', label: 'Team', sortable: true, type: 'checkbox' },
+    { key: 'position', label: 'Pos', sortable: true, type: 'checkbox' },
+    { key: 'salary', label: 'Salary', sortable: true, format: (val: number) => `$${val.toLocaleString()}`, type: 'range' },
+    { key: 'dk_projection', label: 'Proj', sortable: true, format: (val: number) => val.toFixed(1), type: 'range' },
+    { key: 'std_dev', label: 'Std Dev', sortable: true, format: (val: number) => val.toFixed(1), type: 'range' },
+    { key: 'ceiling', label: 'Ceiling', sortable: true, format: (val: number) => val.toFixed(1), type: 'range' },
+    { key: 'boom_pct', label: 'Boom%', sortable: true, format: (val: number) => `${val.toFixed(1)}%`, type: 'range' },
+    { key: 'bust_pct', label: 'Bust%', sortable: true, format: (val: number) => `${val.toFixed(1)}%`, type: 'range' },
+    { key: 'ownership_pct', label: 'Own%', sortable: true, format: (val: number) => `${val.toFixed(1)}%`, type: 'range' },
+    { key: 'optimal_pct', label: 'Opt%', sortable: true, format: (val: number) => `${val.toFixed(1)}%`, type: 'range' },
+    { key: 'leverage', label: 'Lev', sortable: true, format: (val: number) => val.toFixed(1), type: 'range' }
   ];
 
   // Get unique teams and positions
@@ -86,12 +95,12 @@ const DataTable: React.FC<DataTableProps> = ({ players }) => {
       }
 
       // Position filter
-      if (columnFilters.position.length > 0) {
+      if (columnFilters.position && columnFilters.position.length > 0) {
         if (!columnFilters.position.includes(player.position)) return false;
       }
 
       // Team filter
-      if (columnFilters.team_abbr.length > 0) {
+      if (columnFilters.team_abbr && columnFilters.team_abbr.length > 0) {
         if (!columnFilters.team_abbr.includes(player.team_abbr)) return false;
       }
 
@@ -136,6 +145,7 @@ const DataTable: React.FC<DataTableProps> = ({ players }) => {
   const handleSort = (key: string) => {
     setSortConfig(prev => ({
       key,
+      column: null,
       direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc'
     }));
   };
@@ -149,8 +159,17 @@ const DataTable: React.FC<DataTableProps> = ({ players }) => {
   // Clear all filters
   const clearAllFilters = () => {
     setColumnFilters({
+      searchTerm: '',
+      selectedTeams: [],
+      selectedPositions: [],
       position: [],
       team_abbr: [],
+      salaryMin: 0,
+      salaryMax: 100000,
+      ownershipMin: 0,
+      ownershipMax: 100,
+      leverageMin: -100,
+      leverageMax: 100,
       salary: { min: '', max: '' },
       dk_projection: { min: '', max: '' },
       std_dev: { min: '', max: '' },
@@ -166,8 +185,8 @@ const DataTable: React.FC<DataTableProps> = ({ players }) => {
 
   // Check if column has active filter
   const hasActiveFilter = (key: string): boolean => {
-    if (key === 'position') return columnFilters.position.length > 0;
-    if (key === 'team_abbr') return columnFilters.team_abbr.length > 0;
+    if (key === 'position') return columnFilters.position ? columnFilters.position.length > 0 : false;
+    if (key === 'team_abbr') return columnFilters.team_abbr ? columnFilters.team_abbr.length > 0 : false;
     const filter = columnFilters[key as keyof ColumnFilters];
     if (filter && typeof filter === 'object' && 'min' in filter) {
       return filter.min !== '' || filter.max !== '';

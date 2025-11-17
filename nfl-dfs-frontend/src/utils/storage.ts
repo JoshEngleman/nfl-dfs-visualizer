@@ -2,7 +2,7 @@
  * LocalStorage utilities for persisting player data
  */
 
-import { Player, StoredData } from '../types/player';
+import type { StoredData } from '../types/player';
 
 const STORAGE_KEY = 'nflDfsUploadedData';
 

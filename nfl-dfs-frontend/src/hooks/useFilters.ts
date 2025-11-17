@@ -3,7 +3,7 @@
  */
 
 import { useState } from 'react';
-import { Position, Player } from '../types/player';
+import type { Position, Player } from '../types/player';
 
 export interface FilterState {
   position: Position;

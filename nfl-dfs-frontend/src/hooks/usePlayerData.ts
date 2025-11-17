@@ -3,7 +3,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import { Player, StoredData, Position } from '../types/player';
+import type { Player, StoredData, Position } from '../types/player';
 import { saveToLocalStorage, loadFromLocalStorage, hasStoredData } from '../utils/storage';
 
 export const usePlayerData = () => {

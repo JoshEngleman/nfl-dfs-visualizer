@@ -11,7 +11,6 @@ import {
   ReferenceArea,
 } from 'recharts';
 import type { Player, ChartData } from '../../types/player';
-import { getTeamColor } from '../../utils/teamColors';
 import PlayerTooltip from './PlayerTooltip';
 import PlayerHeadshot from './PlayerHeadshot';
 import './ChartView.css';
@@ -60,11 +59,17 @@ export default function ChartView({ players }: ChartViewProps) {
       position: player.position,
       team_abbr: player.team_abbr,
       salary: player.salary,
+      dk_projection: player.dk_projection,
       projection: player.projection,
       proj_ownership: player.proj_ownership,
-      boom_pct: player.boom_pct,
-      leverage: player.leverage,
       pts_per_dollar: player.pts_per_dollar,
+      std_dev: player.std_dev,
+      ceiling: player.ceiling,
+      bust_pct: player.bust_pct,
+      boom_pct: player.boom_pct,
+      ownership_pct: player.ownership_pct,
+      optimal_pct: player.optimal_pct,
+      leverage: player.leverage,
       headshot_url: player.headshot_url,
     }));
   }, [players, xAxisStat, yAxisStat, sizeStat]);

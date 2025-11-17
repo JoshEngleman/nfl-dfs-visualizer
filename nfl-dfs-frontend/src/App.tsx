@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { Player, Position, ViewMode, ChartFilters } from './types/player';
+import { useState, useEffect, useMemo } from 'react';
+import type { Player, Position, ViewMode } from './types/player';
 import { hasStoredData, loadFromLocalStorage } from './utils/storage';
-import CSVUpload from './components/Upload/CSVUpload';
+import { CSVUpload } from './components/Upload/CSVUpload';
 import ChartView from './components/Chart/ChartView';
 import DataTable from './components/DataTable/DataTable';
 import { PositionFilter, TeamFilter, RangeFilter } from './components/Filters';
@@ -25,28 +25,17 @@ function App() {
   const [selectedPositions, setSelectedPositions] = useState<Position[]>([DEFAULT_POSITION]);
   const [players, setPlayers] = useState<Player[]>([]);
 
-  // Chart axis selectors
-  const [xAxisStat, setXAxisStat] = useState<keyof Player>('boom_pct');
-  const [yAxisStat, setYAxisStat] = useState<keyof Player>('leverage');
-  const [sizeStat, setSizeStat] = useState<keyof Player>('ownership_pct');
-
   // Additional filters
   const [selectedTeams, setSelectedTeams] = useState<string[]>([]);
   const [salaryRange, setSalaryRange] = useState<[number, number]>([3000, 12000]);
   const [ownershipRange, setOwnershipRange] = useState<[number, number]>([0, 100]);
-
-  // Zoom state
-  const [left, setLeft] = useState<number | null>(null);
-  const [right, setRight] = useState<number | null>(null);
-  const [top, setTop] = useState<number | null>(null);
-  const [bottom, setBottom] = useState<number | null>(null);
 
   // Load data from localStorage on mount
   useEffect(() => {
     if (hasStoredData()) {
       const stored = loadFromLocalStorage();
       if (stored) {
-        setAllData(stored);
+        setAllData(stored as any);
       }
     }
   }, []);
@@ -131,29 +120,10 @@ function App() {
   };
 
   // Handle CSV upload
-  const handleDataParsed = (parsedData: Record<Position, Player[]>) => {
+  const handleDataParsed = (parsedData: Record<Position, Player[]> | any) => {
     setAllData(parsedData);
     setSelectedPositions([DEFAULT_POSITION]);
   };
-
-  // Reset zoom
-  const resetZoom = () => {
-    setLeft(null);
-    setRight(null);
-    setTop(null);
-    setBottom(null);
-  };
-
-  // Chart configuration options
-  const statOptions = [
-    { value: 'boom_pct', label: 'Boom%' },
-    { value: 'bust_pct', label: 'Bust%' },
-    { value: 'ownership_pct', label: 'Ownership%' },
-    { value: 'leverage', label: 'Leverage' },
-    { value: 'dk_projection', label: 'Projection' },
-    { value: 'std_dev', label: 'Std Dev' },
-    { value: 'ceiling', label: 'Ceiling' },
-  ];
 
   const hasData = allData.ALL.length > 0;
 
@@ -161,7 +131,7 @@ function App() {
     <div className="app">
       <header className="header">
         <h1>🏈 NFL DFS Boom/Bust Visualizer</h1>
-        <CSVUpload onDataParsed={handleDataParsed} />
+        <CSVUpload onDataLoaded={handleDataParsed} />
       </header>
 
       {!hasData ? (
@@ -225,68 +195,10 @@ function App() {
                 selectedTeams={selectedTeams}
                 onToggleTeam={toggleTeam}
               />
-
-              {/* Group 3: Chart Configuration */}
-              <div className="filter-group">
-                <div className="filter-group-header">Chart Configuration</div>
-                <div className="filter-group-content">
-                  <div className="filter-item">
-                    <label>X-Axis</label>
-                    <select
-                      value={xAxisStat}
-                      onChange={(e) => setXAxisStat(e.target.value as keyof Player)}
-                    >
-                      {statOptions.map(opt => (
-                        <option key={opt.value} value={opt.value}>{opt.label}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="filter-item">
-                    <label>Y-Axis</label>
-                    <select
-                      value={yAxisStat}
-                      onChange={(e) => setYAxisStat(e.target.value as keyof Player)}
-                    >
-                      {statOptions.map(opt => (
-                        <option key={opt.value} value={opt.value}>{opt.label}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="filter-item">
-                    <label>Bubble Size</label>
-                    <select
-                      value={sizeStat}
-                      onChange={(e) => setSizeStat(e.target.value as keyof Player)}
-                    >
-                      {statOptions.map(opt => (
-                        <option key={opt.value} value={opt.value}>{opt.label}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <button className="btn-primary" onClick={resetZoom}>
-                    Reset Zoom
-                  </button>
-                </div>
-              </div>
             </div>
 
             {/* Chart Component */}
-            <ChartView
-              players={filteredPlayers}
-              xAxisStat={xAxisStat}
-              yAxisStat={yAxisStat}
-              sizeStat={sizeStat}
-              zoomState={{ left, right, top, bottom }}
-              onZoom={(newZoom) => {
-                setLeft(newZoom.left);
-                setRight(newZoom.right);
-                setTop(newZoom.top);
-                setBottom(newZoom.bottom);
-              }}
-            />
+            <ChartView players={filteredPlayers} />
           </div>
 
           {/* Table Tab Content */}
