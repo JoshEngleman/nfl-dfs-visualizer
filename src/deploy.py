@@ -9,6 +9,8 @@ import sys
 from pathlib import Path
 from ftplib import FTP
 from dotenv import load_dotenv
+from concurrent.futures import ThreadPoolExecutor, as_completed
+import threading
 
 # Load environment variables from .env file
 project_root = Path(__file__).parent.parent
@@ -108,8 +110,43 @@ class DeploymentManager:
         remote_path = f"{REMOTE_BASE_PATH}/index.html"
         return self.upload_file(index_file, remote_path)
 
-    def deploy_headshots(self):
-        """Upload all headshots to server."""
+    def upload_file_thread_safe(self, local_path, remote_filename):
+        """Thread-safe file upload with its own FTP connection."""
+        ftp = None
+        try:
+            # Create new FTP connection for this thread
+            ftp = FTP()
+            ftp.connect(FTP_HOST, FTP_PORT)
+            ftp.login(FTP_USER, FTP_PASS)
+            ftp.cwd(REMOTE_HEADSHOTS_PATH)
+
+            # Upload file
+            with open(local_path, 'rb') as file:
+                ftp.storbinary(f'STOR {remote_filename}', file)
+
+            file_size = os.path.getsize(local_path)
+            ftp.quit()
+            return True, local_path.name, file_size
+        except Exception as e:
+            if ftp:
+                try:
+                    ftp.quit()
+                except:
+                    pass
+            return False, local_path.name, str(e)
+
+    def get_remote_file_list(self, remote_dir):
+        """Get list of files already on server."""
+        try:
+            self.ftp.cwd(remote_dir)
+            file_list = []
+            self.ftp.retrlines('NLST', file_list.append)
+            return set(file_list)
+        except:
+            return set()
+
+    def deploy_headshots(self, parallel=True, max_workers=5, skip_existing=True):
+        """Upload all headshots to server with optional parallel mode."""
         print("\n📸 Deploying headshots...")
 
         headshots_dir = self.project_root / 'cache' / 'headshot_cache_compressed'
@@ -123,20 +160,56 @@ class DeploymentManager:
             print(f"   ❌ No PNG files found in {headshots_dir}")
             return False
 
-        print(f"   Found {len(png_files)} headshots to upload")
+        print(f"   Found {len(png_files)} headshots")
 
         # Ensure headshots directory exists
         self.ensure_directory(REMOTE_HEADSHOTS_PATH)
-        self.ftp.cwd(REMOTE_HEADSHOTS_PATH)
 
-        # Upload each file
+        # Check for existing files if skip_existing is enabled
+        files_to_upload = png_files
+        if skip_existing:
+            print("   Checking existing files on server...")
+            remote_files = self.get_remote_file_list(REMOTE_HEADSHOTS_PATH)
+            if remote_files:
+                print(f"   Found {len(remote_files)} files already uploaded")
+                files_to_upload = [f for f in png_files if f.name not in remote_files]
+                print(f"   Will upload {len(files_to_upload)} new/updated files")
+            else:
+                print("   No existing files found (or unable to check)")
+
+        if not files_to_upload:
+            print("   ✅ All files already uploaded!")
+            return True
+
         uploaded = 0
         failed = 0
-        for png_file in png_files:
-            if self.upload_file(png_file, png_file.name):
-                uploaded += 1
-            else:
-                failed += 1
+
+        if parallel:
+            # Parallel upload mode
+            print(f"   Using {max_workers} parallel connections")
+
+            with ThreadPoolExecutor(max_workers=max_workers) as executor:
+                futures = {
+                    executor.submit(self.upload_file_thread_safe, png_file, png_file.name): png_file
+                    for png_file in files_to_upload
+                }
+
+                for future in as_completed(futures):
+                    success, filename, result = future.result()
+                    if success:
+                        print(f"   ✅ Uploaded {filename} ({result:,} bytes)")
+                        uploaded += 1
+                    else:
+                        print(f"   ❌ Failed {filename}: {result}")
+                        failed += 1
+        else:
+            # Sequential upload mode (original behavior)
+            self.ftp.cwd(REMOTE_HEADSHOTS_PATH)
+            for png_file in files_to_upload:
+                if self.upload_file(png_file, png_file.name):
+                    uploaded += 1
+                else:
+                    failed += 1
 
         print(f"\n   📊 Results: {uploaded} uploaded, {failed} failed")
         return failed == 0
