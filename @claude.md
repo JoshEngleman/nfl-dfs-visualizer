@@ -1,5 +1,14 @@
 # NFL DFS Boom/Bust Visualizer - Project Overview
 
+## ⚠️ IMPORTANT: Development Server Rules
+
+**NEVER start dev servers automatically!**
+- User manages their own dev servers
+- DO NOT run `npm run dev` or similar background commands
+- DO NOT restart servers without explicit permission
+- If user mentions server is running, assume it's already set up correctly
+- Only make code changes and let user refresh their browser
+
 ## Project Description
 
 A web-based NFL DFS (Daily Fantasy Sports) analysis tool that visualizes player data with boom/bust percentages and leverage scores. Features player headshots, interactive tooltips, CSV upload functionality, and automated deployment to GoDaddy hosting.

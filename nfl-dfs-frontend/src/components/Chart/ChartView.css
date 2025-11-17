@@ -1,4 +1,87 @@
-/* Chart-Specific Styles */
+/* Chart Container */
+.chart-container {
+    width: 100%;
+}
+
+/* Chart Controls */
+.chart-controls {
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+    margin-bottom: 20px;
+    padding: 16px;
+    background: #f9fafb;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    flex-wrap: wrap;
+}
+
+.control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+    min-width: 150px;
+}
+
+.control-group label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.control-group select {
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+    background: #ffffff;
+    color: #1f2937;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.control-group select:hover {
+    border-color: #9ca3af;
+    background: #f9fafb;
+}
+
+.control-group select:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+.chart-controls button {
+    align-self: flex-end;
+    white-space: nowrap;
+}
+
+/* Chart Info */
+.chart-info {
+    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+    color: #4b5563;
+    margin-bottom: 16px;
+    padding: 12px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    line-height: 1.6;
+}
+
+/* Chart Wrapper */
+.chart-wrapper {
+    background: #ffffff;
+    border-radius: 8px;
+    padding: 16px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
 
 /* Ensure chart container has proper sizing */
 .recharts-responsive-container {
@@ -14,6 +97,19 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
+    .chart-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .control-group {
+        min-width: 100%;
+    }
+
+    .chart-controls button {
+        align-self: stretch;
+    }
+
     .recharts-responsive-container {
         min-height: 400px;
     }
