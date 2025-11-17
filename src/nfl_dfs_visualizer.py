@@ -51,11 +51,25 @@ class NFLDFSVisualizer:
         print(f"Loaded {len(self.df)} players")
 
     def _load_roster_data(self):
-        """Load NFL roster data"""
+        """Load NFL roster data for current season"""
         try:
             print("Loading NFL roster data...")
             import nfl_data_py as nfl
-            self.roster_cache = nfl.import_seasonal_rosters([2025])
+            import datetime
+
+            # Determine current NFL season year
+            # NFL season starts in September and ends in February
+            # If we're in Jan-Aug, use previous year's season
+            current_date = datetime.datetime.now()
+            current_year = current_date.year
+
+            if current_date.month < 9:
+                season_year = current_year - 1
+            else:
+                season_year = current_year
+
+            print(f"Loading {season_year} season roster data...")
+            self.roster_cache = nfl.import_seasonal_rosters([season_year])
             print(f"Roster data loaded: {len(self.roster_cache)} players")
         except Exception as e:
             print(f"Warning: Could not load roster data: {e}")

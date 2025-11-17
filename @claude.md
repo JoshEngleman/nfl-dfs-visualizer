@@ -206,6 +206,33 @@ Handles player name variations:
 
 ## Recent Updates (November 2025)
 
+### Phase 1: Quick Wins (In Progress)
+
+**Performance Optimization Initiative** - Following comprehensive optimization plan to achieve 70-80% performance improvements.
+
+1. **Dynamic Season Year Detection** (✅ Completed)
+   - Fixed hardcoded 2025 season year in `nfl_dfs_visualizer.py`
+   - Now automatically detects current NFL season based on date (Sep-Feb cycle)
+   - Prevents future breakage when seasons change
+
+2. **Parallel FTP Uploads** (Planned)
+   - Will reduce deployment time from ~10 minutes to ~2 minutes
+   - ThreadPoolExecutor for concurrent image uploads
+
+3. **WebP Image Conversion** (Planned)
+   - Converting headshots from PNG/JPEG to WebP format
+   - Expected 30% reduction in image payload (18MB → 12-13MB)
+
+4. **Image Lazy Loading** (Planned)
+   - Adding `loading="lazy"` attribute to images
+   - 60-70% reduction in initial page load
+
+5. **Deployment Resume Capability** (Planned)
+   - Skip already-uploaded files
+   - Resume failed deployments
+
+### Previous Updates
+
 1. **Automated Headshot Updates**: Created `update_headshots_from_csv.py` to download headshots for new players from CSV files
 2. **Name Mapping Integration**: Both Python and JavaScript now use unified name mappings from `name_mappings.json`
 3. **Deployment Automation**: FTP deployment script (`deploy.py`) with wrapper (`deploy.sh`)
