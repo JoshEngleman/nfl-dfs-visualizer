@@ -94,21 +94,71 @@ class DeploymentManager:
             except Exception as e:
                 print(f"   ⚠️  Could not create directory {remote_dir}: {e}")
 
-    def deploy_website(self):
-        """Upload index.html to server."""
+    def deploy_website(self, use_vite_build=True):
+        """Upload website files to server (Vite build or legacy HTML)."""
         print("\n🌐 Deploying website...")
 
-        index_file = self.project_root / 'public' / 'index.html'
-        if not index_file.exists():
-            print(f"   ❌ File not found: {index_file}")
-            return False
+        if use_vite_build:
+            # Deploy Vite build output
+            dist_dir = self.project_root / 'nfl-dfs-frontend' / 'dist'
+            if not dist_dir.exists():
+                print(f"   ❌ Vite build not found: {dist_dir}")
+                print(f"   💡 Run 'cd nfl-dfs-frontend && npm run build' first")
+                return False
 
-        # Ensure base directory exists
-        self.ensure_directory(REMOTE_BASE_PATH)
+            # Ensure base directory exists
+            self.ensure_directory(REMOTE_BASE_PATH)
 
-        # Upload index.html
-        remote_path = f"{REMOTE_BASE_PATH}/index.html"
-        return self.upload_file(index_file, remote_path)
+            # Upload index.html
+            index_file = dist_dir / 'index.html'
+            if index_file.exists():
+                remote_path = f"{REMOTE_BASE_PATH}/index.html"
+                if not self.upload_file(index_file, remote_path):
+                    return False
+            else:
+                print(f"   ❌ index.html not found in build")
+                return False
+
+            # Upload assets directory
+            assets_dir = dist_dir / 'assets'
+            if assets_dir.exists():
+                print(f"\n📦 Deploying assets...")
+
+                # Ensure remote assets directory exists
+                remote_assets_path = f"{REMOTE_BASE_PATH}/assets"
+                self.ensure_directory(remote_assets_path)
+                self.ftp.cwd(remote_assets_path)
+
+                # Get all asset files
+                asset_files = list(assets_dir.glob('*'))
+                print(f"   Found {len(asset_files)} asset files")
+
+                uploaded = 0
+                failed = 0
+                for asset_file in asset_files:
+                    if self.upload_file(asset_file, asset_file.name):
+                        uploaded += 1
+                    else:
+                        failed += 1
+
+                print(f"   📊 Assets: {uploaded} uploaded, {failed} failed")
+                return failed == 0
+
+            return True
+
+        else:
+            # Legacy: Upload public/index.html
+            index_file = self.project_root / 'public' / 'index.html'
+            if not index_file.exists():
+                print(f"   ❌ File not found: {index_file}")
+                return False
+
+            # Ensure base directory exists
+            self.ensure_directory(REMOTE_BASE_PATH)
+
+            # Upload index.html
+            remote_path = f"{REMOTE_BASE_PATH}/index.html"
+            return self.upload_file(index_file, remote_path)
 
     def upload_file_thread_safe(self, local_path, remote_filename):
         """Thread-safe file upload with its own FTP connection."""
