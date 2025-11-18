@@ -11,6 +11,45 @@ body {
     padding: 20px;
 }
 
+/* App Container */
+.app {
+    max-width: 1400px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+}
+
+/* Header with Upload */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #e5e7eb;
+    margin-bottom: 20px;
+    gap: 20px;
+}
+
+.header h1 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0;
+    letter-spacing: 0.5px;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #6b7280;
+    font-size: 16px;
+    font-weight: 500;
+}
+
 .container {
     max-width: 1400px;
     margin: 0 auto;
@@ -135,6 +174,14 @@ button:active {
 }
 
 /* Tab Styles */
+.tabs {
+    display: flex;
+    gap: 4px;
+    border-bottom: 2px solid #e5e7eb;
+    margin: 0 -20px;
+    padding: 0 20px;
+}
+
 .tab-navigation {
     display: flex;
     gap: 4px;
