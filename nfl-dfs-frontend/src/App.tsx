@@ -27,7 +27,7 @@ function App() {
 
   // Additional filters
   const [selectedTeams, setSelectedTeams] = useState<string[]>([]);
-  const [salaryRange, setSalaryRange] = useState<[number, number]>([3000, 12000]);
+  const [salaryRange, setSalaryRange] = useState<[number, number]>([2000, 12000]);
   const [ownershipRange, setOwnershipRange] = useState<[number, number]>([0, 100]);
 
   // Load data from localStorage on mount
@@ -69,13 +69,17 @@ function App() {
 
   // Apply filters
   const filteredPlayers = useMemo(() => {
-    return players.filter(p => {
+    console.log('Filtering players:', players.length, 'players');
+    if (players.length > 0) {
+      console.log('Sample player:', players[0]);
+    }
+    const filtered = players.filter(p => {
       // Team filter
       if (selectedTeams.length > 0 && !selectedTeams.includes(p.team_abbr)) {
         return false;
       }
-      // Salary filter
-      if (p.salary < salaryRange[0] || p.salary > salaryRange[1]) {
+      // Salary filter - only apply if salary is > 0 (valid data)
+      if (p.salary > 0 && (p.salary < salaryRange[0] || p.salary > salaryRange[1])) {
         return false;
       }
       // Ownership filter
@@ -84,6 +88,8 @@ function App() {
       }
       return true;
     });
+    console.log('Filtered to:', filtered.length, 'players');
+    return filtered;
   }, [players, selectedTeams, salaryRange, ownershipRange]);
 
   // Handle position toggle
@@ -170,7 +176,7 @@ function App() {
 
                   <RangeFilter
                     label="Salary Range"
-                    min={3000}
+                    min={2000}
                     max={12000}
                     step={100}
                     value={salaryRange}

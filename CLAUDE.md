@@ -1,0 +1,2 @@
+- never use port 3000 in servers
+- use uv to manage this project

@@ -331,6 +331,44 @@ Given that Phase 1 was successful and we have momentum, I recommend **Option A (
 
 ---
 
+## Post-Phase 2 Updates (November 25, 2025)
+
+### Bug Fixes & Enhancements
+
+1. **Chart Data Rendering Fix**
+   - Fixed scatter plot rendering - players were stacked in corner
+   - Changed from JSX element `shape={<PlayerHeadshot />}` to function reference `shape={PlayerHeadshot as any}`
+   - Added proper spread operator for player data in chartData calculation
+
+2. **Player Headshot Improvements**
+   - Fixed clipPath IDs with special characters causing image spillover
+   - Created sanitized `safeId` for SVG clipPath elements
+   - Team logo watermark now renders on top of headshot with `mixBlendMode: multiply` for visibility
+   - Downloaded missing headshots (Mike Gesicki, Joe Burrow)
+
+3. **Tooltip Enhancement**
+   - Changed fallback from "??" placeholder to team logo when headshot unavailable
+
+4. **Data Persistence**
+   - Added `saveToLocalStorage()` call in CSVUpload component
+   - CSV data now persists across page refreshes
+
+5. **Filter Fixes**
+   - Lowered salary filter minimum from $3,000 to $2,000 (to include all DSTs)
+   - Fixed negative Boom% on X-axis with `Math.max(0, xMin - xPadding)`
+
+6. **Chart Axis Improvements**
+   - Added `tickFormatter` for clean decimal display on axes
+   - Added missing stat options: Bust%, Own%, Opt%, Std Dev, Ceiling
+   - Removed duplicate Proj Own%/Own% (they were the same data)
+
+7. **Zoom Functionality**
+   - Enhanced mouse event handlers to work when clicking on data points
+   - Added `activePayload` fallback for coordinate capture
+   - Added `onMouseLeave` handler to cancel drag selection
+
+---
+
 **Status:** ✅ **PHASE 2 COMPLETE AND DEPLOYED**
-**Last Updated:** November 17, 2025
-**Deployed:** November 17, 2025 at 4:36 PM PST
+**Last Updated:** November 25, 2025
+**Deployed:** November 25, 2025

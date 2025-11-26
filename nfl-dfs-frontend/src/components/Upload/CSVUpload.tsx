@@ -5,6 +5,7 @@
 
 import { useRef } from 'react';
 import { useCSVParser } from '../../hooks/useCSVParser';
+import { saveToLocalStorage } from '../../utils/storage';
 import type { StoredData } from '../../types/player';
 import './CSVUpload.css';
 
@@ -33,6 +34,8 @@ export const CSVUpload: React.FC<CSVUploadProps> = ({ onDataLoaded }) => {
           grouped[pos] = result.data.filter(p => p.position === pos);
         });
 
+        // Save to localStorage for persistence
+        saveToLocalStorage(grouped);
         onDataLoaded(grouped);
       } else {
         alert(`Failed to parse CSV: ${result.errors.join(', ')}`);

@@ -29,16 +29,18 @@ export const cleanPlayerName = (name: string): string => {
 
 /**
  * Get headshot URL for a player
- * Priority order:
- * 1. Server headshots folder (PNG/WebP)
- * 2. Team logo as fallback
+ * Uses local headshots from /nfl-dfs/headshots/
  */
 export const getHeadshotUrl = (player: Player): string => {
+  // For DST, use team logo
+  if (player.position === 'DST') {
+    return `https://a.espncdn.com/i/teamlogos/nfl/500/${player.team_abbr.toUpperCase()}.png`;
+  }
+
   const nameToUse = applyNameMapping(player.player_name, player.team_abbr);
   const cleanName = cleanPlayerName(nameToUse);
 
-  // Try server headshots folder (will fallback in component if not found)
-  return `/nfl-dfs/headshots/${cleanName}.webp`;
+  return `/nfl-dfs/headshots/${cleanName}.png`;
 };
 
 /**

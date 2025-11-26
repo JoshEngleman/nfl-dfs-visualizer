@@ -36,20 +36,20 @@ export default function PlayerTooltip({ active, payload }: PlayerTooltipProps) {
     );
   };
 
-  const placeholderImage =
-    'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIGZpbGw9IiNlNWU3ZWIiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjI0IiBmaWxsPSIjOWNhM2FmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+Pz88L3RleHQ+PC9zdmc+';
+  // Use team logo as fallback
+  const teamLogoUrl = `https://a.espncdn.com/i/teamlogos/nfl/500/${data.team_abbr?.toUpperCase() || 'NFL'}.png`;
 
   return (
     <div className="player-card-tooltip">
       {/* Header with headshot, name, position, team, salary */}
       <div className="player-card-header">
         <img
-          src={data.headshot_url || placeholderImage}
+          src={data.headshot_url || teamLogoUrl}
           alt={data.player_name}
           className="player-card-headshot"
           loading="lazy"
           onError={(e) => {
-            e.currentTarget.src = placeholderImage;
+            e.currentTarget.src = teamLogoUrl;
           }}
         />
         <div className="player-card-info">

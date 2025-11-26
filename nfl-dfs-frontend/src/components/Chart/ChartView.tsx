@@ -10,9 +10,9 @@ import {
   ReferenceLine,
   ReferenceArea,
 } from 'recharts';
-import type { Player, ChartData } from '../../types/player';
+import type { Player } from '../../types/player';
 import PlayerTooltip from './PlayerTooltip';
-import PlayerHeadshot from './PlayerHeadshot';
+import PlayerHeadshot, { setHeadshotContext } from './PlayerHeadshot';
 import './ChartView.css';
 
 interface ChartViewProps {
@@ -26,18 +26,22 @@ interface StatOption {
 
 const statOptions: StatOption[] = [
   { value: 'boom_pct', label: 'Boom%' },
-  { value: 'proj_ownership', label: 'Proj Own%' },
+  { value: 'bust_pct', label: 'Bust%' },
+  { value: 'ownership_pct', label: 'Own%' },
+  { value: 'optimal_pct', label: 'Opt%' },
   { value: 'projection', label: 'Projection' },
   { value: 'salary', label: 'Salary' },
   { value: 'leverage', label: 'Leverage' },
   { value: 'pts_per_dollar', label: 'Pts/$' },
+  { value: 'std_dev', label: 'Std Dev' },
+  { value: 'ceiling', label: 'Ceiling' },
 ];
 
 export default function ChartView({ players }: ChartViewProps) {
   // Axis configuration
   const [xAxisStat, setXAxisStat] = useState('boom_pct');
   const [yAxisStat, setYAxisStat] = useState('leverage');
-  const [sizeStat, setSizeStat] = useState('proj_ownership');
+  const [sizeStat, setSizeStat] = useState('ownership_pct');
 
   // Zoom state
   const [left, setLeft] = useState<number | null>(null);
@@ -49,29 +53,63 @@ export default function ChartView({ players }: ChartViewProps) {
   const [refAreaTop, setRefAreaTop] = useState<number | null>(null);
   const [refAreaBottom, setRefAreaBottom] = useState<number | null>(null);
 
-  // Calculate chart data
-  const chartData: ChartData[] = useMemo(() => {
-    return players.map((player) => ({
-      x: player[xAxisStat as keyof Player] as number,
-      y: player[yAxisStat as keyof Player] as number,
-      z: player[sizeStat as keyof Player] as number,
-      player_name: player.player_name,
-      position: player.position,
-      team_abbr: player.team_abbr,
-      salary: player.salary,
-      dk_projection: player.dk_projection,
-      projection: player.projection,
-      proj_ownership: player.proj_ownership,
-      pts_per_dollar: player.pts_per_dollar,
-      std_dev: player.std_dev,
-      ceiling: player.ceiling,
-      bust_pct: player.bust_pct,
-      boom_pct: player.boom_pct,
-      ownership_pct: player.ownership_pct,
-      optimal_pct: player.optimal_pct,
-      leverage: player.leverage,
-      headshot_url: player.headshot_url,
-    }));
+  // Calculate chart data with colors and sizes
+  const chartData = useMemo(() => {
+    if (players.length === 0) return [];
+
+    // Get all size values to calculate min/max
+    const sizeValues = players.map(p => p[sizeStat as keyof Player] as number).filter(v => v != null);
+    const minSize = Math.min(...sizeValues);
+    const maxSize = Math.max(...sizeValues);
+
+    // Get x/y values for percentile calculations
+    const xValues = players.map(p => p[xAxisStat as keyof Player] as number).filter(v => v != null);
+    const yValues = players.map(p => p[yAxisStat as keyof Player] as number).filter(v => v != null);
+
+    const sortedX = [...xValues].sort((a, b) => a - b);
+    const sortedY = [...yValues].sort((a, b) => a - b);
+
+    const xMedian = sortedX[Math.floor(sortedX.length / 2)] || 0;
+    const x75th = sortedX[Math.floor(sortedX.length * 0.75)] || 0;
+    const y75th = sortedY[Math.floor(sortedY.length * 0.75)] || 0;
+
+    const data = players.map((player) => {
+      const xVal = player[xAxisStat as keyof Player] as number;
+      const yVal = player[yAxisStat as keyof Player] as number;
+      const sizeVal = player[sizeStat as keyof Player] as number;
+
+      // Determine quadrant color based on x/y position
+      let color: string;
+      if (xVal >= xMedian && yVal >= 0) {
+        color = '#059669'; // Green - Best
+      } else if (xVal < xMedian && yVal >= 0) {
+        color = '#d97706'; // Amber - Contrarian
+      } else if (xVal >= xMedian && yVal < 0) {
+        color = '#6b7280'; // Gray - Popular
+      } else {
+        color = '#dc2626'; // Red - Avoid
+      }
+
+      return {
+        ...player,
+        x: xVal,
+        y: yVal,
+        rawSize: sizeVal,
+        color: color,
+        intensity: 0.85
+      };
+    });
+
+    // Update headshot context for label positioning
+    setHeadshotContext({
+      minSize,
+      maxSize,
+      x75th,
+      y75th,
+      chartData: data,
+    });
+
+    return data;
   }, [players, xAxisStat, yAxisStat, sizeStat]);
 
   // Calculate default bounds and median
@@ -95,7 +133,7 @@ export default function ChartView({ players }: ChartViewProps) {
     const median = sortedX[Math.floor(sortedX.length / 2)];
 
     return {
-      defaultLeft: xMin - xPadding,
+      defaultLeft: Math.max(0, xMin - xPadding), // Never go below 0 for percentages
       defaultRight: xMax + xPadding,
       defaultTop: yMax + yPadding,
       defaultBottom: yMin - yPadding,
@@ -204,24 +242,50 @@ export default function ChartView({ players }: ChartViewProps) {
           <ScatterChart
             margin={{ top: 40, right: 120, bottom: 60, left: 60 }}
             onMouseDown={(e: any) => {
-              if (e) {
+              if (e && e.xValue !== undefined) {
                 setRefAreaLeft(e.xValue);
                 setRefAreaTop(e.yValue);
+              } else if (e && e.activePayload && e.activePayload[0]) {
+                // Clicked on a data point - use its coordinates
+                const payload = e.activePayload[0].payload;
+                setRefAreaLeft(payload.x);
+                setRefAreaTop(payload.y);
               }
             }}
             onMouseMove={(e: any) => {
-              if (refAreaLeft && e) {
-                setRefAreaRight(e.xValue);
-                setRefAreaBottom(e.yValue);
+              if (refAreaLeft !== null) {
+                if (e && e.xValue !== undefined) {
+                  setRefAreaRight(e.xValue);
+                  setRefAreaBottom(e.yValue);
+                } else if (e && e.activePayload && e.activePayload[0]) {
+                  const payload = e.activePayload[0].payload;
+                  setRefAreaRight(payload.x);
+                  setRefAreaBottom(payload.y);
+                } else if (e && e.chartX !== undefined && e.chartY !== undefined) {
+                  // Use chart coordinates as fallback - calculate approximate data values
+                  // This is a rough estimate but allows dragging to work
+                  setRefAreaRight(e.xValue ?? refAreaRight);
+                  setRefAreaBottom(e.yValue ?? refAreaBottom);
+                }
               }
             }}
             onMouseUp={zoom}
+            onMouseLeave={() => {
+              // Cancel drag if mouse leaves chart
+              if (refAreaLeft !== null) {
+                setRefAreaLeft(null);
+                setRefAreaRight(null);
+                setRefAreaTop(null);
+                setRefAreaBottom(null);
+              }
+            }}
           >
             <CartesianGrid strokeDasharray="3 3" stroke="#d1d5db" strokeWidth={1.5} />
             <XAxis
               type="number"
               dataKey="x"
               name={xAxisLabel}
+              tickFormatter={(value: number) => Number(value.toFixed(2)).toString()}
               label={{
                 value: xAxisLabel,
                 position: 'bottom',
@@ -243,6 +307,7 @@ export default function ChartView({ players }: ChartViewProps) {
               type="number"
               dataKey="y"
               name={yAxisLabel}
+              tickFormatter={(value: number) => Number(value.toFixed(2)).toString()}
               label={{
                 value: yAxisLabel,
                 angle: -90,
@@ -316,7 +381,7 @@ export default function ChartView({ players }: ChartViewProps) {
               opacity={0.5}
             />
 
-            <Scatter data={chartData} shape={<PlayerHeadshot />} />
+            <Scatter data={chartData} shape={PlayerHeadshot as any} />
 
             {refAreaLeft && refAreaRight && (
               <ReferenceArea

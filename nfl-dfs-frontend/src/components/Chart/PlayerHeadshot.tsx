@@ -1,16 +1,4 @@
-import type { ChartData } from '../../types/player';
-
-interface PlayerHeadshotProps {
-  cx?: number;
-  cy?: number;
-  payload?: ChartData & {
-    color: string;
-    intensity: number;
-    rawSize: number;
-    player_id: string;
-  };
-  index?: number;
-}
+// Recharts passes these props to custom shape components
 
 // These will be calculated by parent component
 let minSize = 0;
@@ -33,7 +21,7 @@ export function setHeadshotContext(data: {
   chartData = data.chartData;
 }
 
-export default function PlayerHeadshot(props: PlayerHeadshotProps) {
+export default function PlayerHeadshot(props: any) {
   const { cx = 0, cy = 0, payload, index = 0 } = props;
 
   if (!payload) return null;
@@ -45,6 +33,9 @@ export default function PlayerHeadshot(props: PlayerHeadshotProps) {
 
   const borderOpacity = payload.intensity;
   const glowOpacity = payload.intensity * 0.3;
+
+  // Sanitize player_id for use in clipPath (remove special chars)
+  const safeId = `player-${index}-${payload.player_name.replace(/[^a-zA-Z0-9]/g, '')}`;
 
   // Extract last name
   const nameParts = payload.player_name.split(' ');
@@ -77,7 +68,7 @@ export default function PlayerHeadshot(props: PlayerHeadshotProps) {
   // If crowded, use hash-based positioning
   if (nearbyPlayers.length > 0) {
     const hash =
-      payload.player_id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % 4;
+      payload.player_id.split('').reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0) % 4;
     if (hash === 0) {
       // Below-right
       labelX = cx + radius + 5;
@@ -108,28 +99,16 @@ export default function PlayerHeadshot(props: PlayerHeadshotProps) {
 
       {/* Clip paths */}
       <defs>
-        <clipPath id={`clip-${payload.player_id}`}>
+        <clipPath id={`clip-${safeId}`}>
           <circle cx={cx} cy={cy} r={radius} />
         </clipPath>
-        <clipPath id={`clip-watermark-${payload.player_id}`}>
+        <clipPath id={`clip-wm-${safeId}`}>
           <circle cx={cx} cy={cy} r={radius} />
         </clipPath>
       </defs>
 
       {/* White background */}
       <circle cx={cx} cy={cy} r={radius} fill="white" />
-
-      {/* Team logo watermark */}
-      <image
-        x={cx - watermarkSize / 2}
-        y={cy - watermarkSize / 2}
-        width={watermarkSize}
-        height={watermarkSize}
-        href={teamLogoUrl}
-        clipPath={`url(#clip-watermark-${payload.player_id})`}
-        opacity={0.18}
-        preserveAspectRatio="xMidYMid meet"
-      />
 
       {/* Player headshot */}
       <image
@@ -138,9 +117,21 @@ export default function PlayerHeadshot(props: PlayerHeadshotProps) {
         width={size}
         height={size}
         href={payload.headshot_url}
-        clipPath={`url(#clip-${payload.player_id})`}
+        clipPath={`url(#clip-${safeId})`}
         preserveAspectRatio="xMidYMid slice"
-        opacity={0.9}
+      />
+
+      {/* Team logo watermark - rendered on top with low opacity */}
+      <image
+        x={cx - watermarkSize / 2}
+        y={cy - watermarkSize / 2}
+        width={watermarkSize}
+        height={watermarkSize}
+        href={teamLogoUrl}
+        clipPath={`url(#clip-wm-${safeId})`}
+        opacity={0.15}
+        preserveAspectRatio="xMidYMid meet"
+        style={{ mixBlendMode: 'multiply' }}
       />
 
       {/* Border */}

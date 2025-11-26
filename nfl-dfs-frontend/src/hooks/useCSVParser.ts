@@ -19,32 +19,55 @@ export const useCSVParser = () => {
       Papa.parse(file, {
         header: true,
         skipEmptyLines: true,
+        transformHeader: (header: string) => header.trim(),
         complete: (results) => {
           try {
+            // Log headers for debugging
+            if (results.data.length > 0) {
+              const firstRow = results.data[0] as Record<string, unknown>;
+              console.log('CSV Headers:', Object.keys(firstRow));
+              console.log('First row:', firstRow);
+            }
+
             const players: Player[] = results.data.map((row: any) => {
-              const projection = parseFloat(row['DK Projection'] || row.dk_projection || row.projection || '0');
-              const ownership = parseFloat(row['Ownership%'] || row.ownership_pct || row.proj_ownership || '0');
-              const salary = parseFloat(row.Salary || row.salary || '0');
+              // Helper to get value by trying multiple possible column names
+              const getValue = (...keys: string[]): string => {
+                for (const key of keys) {
+                  if (row[key] !== undefined && row[key] !== null && row[key] !== '') {
+                    return String(row[key]);
+                  }
+                }
+                return '';
+              };
+
+              // Handle salary with commas (e.g., "8,100")
+              const salaryStr = getValue('Salary', 'salary');
+              const salary = parseFloat(salaryStr.replace(/,/g, '')) || 0;
+
+              const projection = parseFloat(getValue('Projection', 'DK Projection', 'dk_projection', 'projection')) || 0;
+              const ownership = parseFloat(getValue('Own%', 'Ownership%', 'ownership_pct', 'proj_ownership')) || 0;
 
               const player: Player = {
-                player_name: row.Name || row.player_name || '',
-                player_id: row['Name + ID'] || row.player_id || `${row.Name}_${Date.now()}`,
-                position: row.Position || row.position || 'ALL',
-                team_abbr: row.TeamAbbrev || row.team_abbr || '',
+                player_name: getValue('Name', 'player_name'),
+                player_id: getValue('Name + ID', 'player_id') || `${getValue('Name', 'player_name')}_${Date.now()}_${Math.random()}`,
+                position: getValue('Position', 'position') as any || 'ALL',
+                team_abbr: getValue('Team', 'TeamAbbrev', 'team_abbr'),
                 salary: salary,
                 dk_projection: projection,
                 projection: projection,
                 proj_ownership: ownership,
                 pts_per_dollar: salary > 0 ? projection / (salary / 1000) : 0,
-                std_dev: parseFloat(row['Std Dev'] || row.std_dev || '0'),
-                ceiling: parseFloat(row.Ceiling || row.ceiling || '0'),
-                bust_pct: parseFloat(row['Bust%'] || row.bust_pct || '0'),
-                boom_pct: parseFloat(row['Boom%'] || row.boom_pct || '0'),
+                std_dev: parseFloat(getValue('Std Dev', 'std_dev')) || 0,
+                ceiling: parseFloat(getValue('Ceiling', 'ceiling')) || 0,
+                bust_pct: parseFloat(getValue('Bust%', 'bust_pct')) || 0,
+                boom_pct: parseFloat(getValue('Boom%', 'boom_pct')) || 0,
                 ownership_pct: ownership,
-                optimal_pct: parseFloat(row['Optimal%'] || row.optimal_pct || '0'),
-                leverage: parseFloat(row.Leverage || row.leverage || '0'),
+                optimal_pct: parseFloat(getValue('Optimal%', 'optimal_pct')) || 0,
+                leverage: parseFloat(getValue('Leverage', 'leverage')) || 0,
                 headshot_url: ''
               };
+
+              console.log('Parsed player:', player.player_name, 'Team:', player.team_abbr, 'Salary:', player.salary, 'Proj:', player.projection);
 
               // Generate headshot URL
               player.headshot_url = getHeadshotUrl(player);
